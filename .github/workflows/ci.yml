@@ -1,41 +1,49 @@
 
-name: Linux_Network_Monitor
+name: Linux Network Monitor CI
 
 on:
   push:
     branches:
       - main
-    pull_request:
-      branches:
-        - main
- permissions:
-   contents: read
+  pull_request:
+    branches:
+      - main
 
-  jobs:
-    validate-and-build:
-      runs-on: ubuntu-latest
+permissions:
+  contents: read
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout resository
+      - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Check Bash syntax
         run: bash -n network_monitor.sh
+
       - name: Install ShellCheck
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck
+
       - name: Run ShellCheck
         run: shellcheck network_monitor.sh
+
       - name: Build Docker image
         run: docker build -t linux_network_monitor:ci .
-      - name: Run Docker Container
+
+      - name: Run Docker container
         run: |
-         mkdir -p output
-         docker run --rm \
-             -v "$ {{ github.workspace }}/output:/app/output" \
-                                                             linux_network_monitor:ci"
+          mkdir -p output
+
+          docker run --rm \
+            -v "${{ github.workspace }}/output:/app/output" \
+            linux_network_monitor:ci
+
       - name: Verify log file
-        run: | test -f output/network_monitor.log
-               test -s output/network_monitor.log
-               cat output/network_monitor.log 
-        
-        
+        run: |
+          test -f output/network_monitor.log
+          test -s output/network_monitor.log
+          cat output/network_monitor.log
