@@ -26,3 +26,9 @@ jobs:
 
       - name: Run Docker container
         run: docker run --rm linux-network-monitor:ci
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        continue-on-error: true
+        run: shellcheck network_monitor.sh
