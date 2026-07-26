@@ -1,7 +1,8 @@
 #!/bin/bash
 
+readonly
 TARGET_FILE="network_monitor.csv"
-
+readonly
 LOG_FILE="network_monitor.log"
 
 echo "***** Network Check : $(date) *****" > "$LOG_FILE"
@@ -9,7 +10,7 @@ echo "***** Network Check : $(date) *****" > "$LOG_FILE"
 while read -r  website port
 do
 	#Get 5 ping packets and save the  output
-	ping_output=$(ping -c 5 "$website" 2>/dev/null)
+	ping_output=$(ping -c "$PING_COUNT" "$website" 2>/dev/null)
 	ping_status=$?
 	
 	packet_loss=$(echo "$ping_output" | grep "packet loss" | awk -F',' '{print $3}' | awk '{print $1}')
