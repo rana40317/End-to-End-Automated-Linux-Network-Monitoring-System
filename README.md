@@ -103,7 +103,7 @@ Workflow Location
 .github/workflows/ci.yml
 
 
-# 📊 Sample Output
+# Sample Output
 
 Add your terminal screenshot here.
 
