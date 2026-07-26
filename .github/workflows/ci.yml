@@ -1,4 +1,4 @@
-name: CI Test
+name: Linux Network Monitor CI
 
 on:
   workflow_dispatch:
@@ -8,10 +8,47 @@ on:
       - main
       - master
 
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
 jobs:
-  test:
+  validate-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test workflow
-        run: echo "GitHub Actions is working"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Bash syntax
+        run: bash -n network_monitor.sh
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        continue-on-error: true
+        run: shellcheck network_monitor.sh
+
+      - name: Build Docker image
+        run: docker build -t linux_network_monitor:ci .
+
+      - name: Run Docker container
+        run: |
+          mkdir -p output
+          docker run --rm \
+            -v "${{ github.workspace }}/output:/app/output" \
+            linux_network_monitor:ci
+
+      - name: Verify log file
+        run: |
+          ls -la output
+          test -f output/network_monitor.log
+          test -s output/network_monitor.log
+          cat output/network_monitor.log
